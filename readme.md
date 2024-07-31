@@ -21,7 +21,7 @@ You can download a public AES key by choosing the download option on startup
 
 ## Credits
 
-Thanks to @lucyloopss on discord for the original idea and base project.
+Thanks to [lucyloopss](https://github.com/lucyloopss) for the original idea and base project.
 
 ## Contributing
 
