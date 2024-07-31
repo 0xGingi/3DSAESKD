@@ -1,10 +1,11 @@
 @ECHO OFF
 setlocal
+title 3DSAESKD
 
 set "download_url=https://github.com/Yetiuard/misc/raw/main/aes_keys.txt"
 set "source_file=aes_keys.txt"
 set "lime3ds_file=%appdata%\Lime3DS\sysdata\aes_keys.txt"
-set "mandarin_file=%appdata%\Mandarin\sysdata\aes_keys.txt"
+set "mandarine_file=%appdata%\Mandarine\sysdata\aes_keys.txt"
 set "citra_file=%appdata%\Citra\sysdata\aes_keys.txt"
 
 if not exist "%source_file%" (
@@ -43,7 +44,7 @@ GOTO CHECK_DIRECTORIES
 :CHECK_DIRECTORIES
 CALL :ProcessFile "%citra_file%" "Citra"
 CALL :ProcessFile "%lime3ds_file%" "Lime3DS"
-CALL :ProcessFile "%mandarin_file%" "Mandarin"
+CALL :ProcessFile "%mandarine_file%" "Mandarine"
 
 ECHO Success! Press any key to exit! :3
 PAUSE >nul
