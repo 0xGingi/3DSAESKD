@@ -1,1 +1,1 @@
-hahahaha cock
+please dont use this to do harm
