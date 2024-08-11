@@ -2,30 +2,74 @@
 setlocal
 title 3DSAESKD
 
-set "download_url=https://github.com/Yetiuard/misc/raw/main/aes_keys.txt"
-set "source_file=aes_keys.txt"
-set "lime3ds_file=%appdata%\Lime3DS\sysdata\aes_keys.txt"
-set "mandarine_file=%appdata%\Mandarine\sysdata\aes_keys.txt"
-set "citra_file=%appdata%\Citra\sysdata\aes_keys.txt"
+set "aeskeys_url_yetiuard=https://github.com/Yetiuard/misc/raw/main/aeskeys-txt-seeddb-bin/yetiuard/aes_keys.txt"
+set "aeskeys_url_jimjam=https://ia600305.us.archive.org/2/items/3DS-AES-Keys/aes_keys.txt"
+set "aeskeys_url_pastebin=https://pastebin.com/raw/vRy8c6JP"
+set "seeddb_url_jimjam=https://ia600305.us.archive.org/2/items/3DS-AES-Keys/seeddb.bin"
+set "seeddb_url_ihaveamac=https://github.com/ihaveamac/3DS-rom-tools/raw/master/seeddb/seeddb.bin"
+set "aeskeystxt=aes_keys.txt"
+set "seeddbbin=seeddb.bin"
+set "lime3ds_aeskeys=%appdata%\Lime3DS\sysdata\aes_keys.txt"
+set "mandarine_aeskeys=%appdata%\Mandarine\sysdata\aes_keys.txt"
+set "citra_aeskeys=%appdata%\Citra\sysdata\aes_keys.txt"
+set "lime3ds_seeddb=%appdata%\Lime3DS\sysdata\seeddb.bin"
+set "mandarine_seeddb=%appdata%\Mandarine\sysdata\seeddb.bin"
+set "citra_seeddb=%appdata%\Citra\sysdata\seeddb.bin"
 
-if not exist "%source_file%" (
-    ECHO %source_file% not found in the current directory.
-    CHOICE /N /C:DC /M "Do you want to (D)ownload the file or use a (C)ustom File?"
-    IF ERRORLEVEL 2 GOTO USE_CUSTOM_PATH
-    IF ERRORLEVEL 1 GOTO DOWNLOAD
+if not exist "%aeskeystxt%" (
+    ECHO %aeskeystxt% not found in the current directory!
+    ECHO:
+    ECHO Do you want to:
+    ECHO [1] Download the file
+    ECHO [2] Use a custom aes_keys.txt file
+    ECHO [3] Skip this part
+    ECHO:
+    CHOICE /N /C:123 /M "Your choice:"
+    IF ERRORLEVEL 3 GOTO SEEDDBCHECK
+    IF ERRORLEVEL 2 GOTO USE_CUSTOM_PATH_AESKEYS
+    IF ERRORLEVEL 1 GOTO CHOOSEAESKEYSDOWNLOAD
     GOTO END
 )
 
-:DOWNLOAD
-powershell -Command "Invoke-WebRequest -Uri '%download_url%' -OutFile '%source_file%'"
+:SEEDDBCHECK
+if not exist "%seeddbbin%" (
+    ECHO %seeddbbin% not found in the current directory!
+    ECHO:
+    ECHO Do you want to:
+    ECHO [1] Download the file
+    ECHO [2] Use a custom file
+    ECHO [3] Skip this part
+    ECHO:
+    CHOICE /N /C:123 /M "Youe choice:"
+    IF ERRORLEVEL 3 (
+            ECHO Setup complete. Press any key to exit!
+            PAUSE >nul
+            EXIT /B
+            )
+    IF ERRORLEVEL 2 GOTO USE_CUSTOM_PATH_SEEDDBBIN
+    IF ERRORLEVEL 1 GOTO CHOOSESEEDDBBINDOWNLOAD
+)
+
+
+:DOWNLOADAESKEYS
+powershell -Command "Invoke-WebRequest -Uri '%aeskeys_url%' -OutFile '%aeskeystxt%'"
 IF %ERRORLEVEL% NEQ 0 (
-    ECHO Download failed. :( Press any key to exit. Are you connected to the internet?
+    ECHO Download failed. :( Press any key to exit. 
     PAUSE >nul
     EXIT /B
 )
-GOTO CHECK_DIRECTORIES
+GOTO CHECK_DIRECTORIES_AESKEYS
 
-:USE_CUSTOM_PATH
+:DOWNLOADSEEDDB
+powershell -Command "Invoke-WebRequest -Uri '%seeddbbin_url%' -OutFile '%seeddbbin%'"
+IF %ERRORLEVEL% NEQ 0 (
+    ECHO Download failed. :( Press any key to exit.
+    PAUSE >nul
+    EXIT /B
+)
+GOTO CHECK_DIRECTORIES_SEEDDB
+
+:USE_CUSTOM_PATH_AESKEYS
 FOR /F "delims=" %%I IN ('powershell -noprofile "Add-Type -AssemblyName System.Windows.Forms; $f = New-Object Windows.Forms.OpenFileDialog; $f.InitialDirectory = [System.IO.Directory]::GetCurrentDirectory(); $f.Filter = 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*'; $f.ShowHelp = $true; $f.Multiselect = $false; [void]$f.ShowDialog(); $f.FileName"') DO SET "custom_file_path=%%I"
 IF NOT EXIST "%custom_file_path%" (
     ECHO Custom file not found. :( Press any key to exit.
@@ -33,39 +77,80 @@ IF NOT EXIST "%custom_file_path%" (
     EXIT /B
 )
 
-COPY /Y "%custom_file_path%" "%source_file%"
+COPY /Y "%custom_file_path%" "%aeskeystxt%"
 IF %ERRORLEVEL% NEQ 0 (
     ECHO File copy failed. :( Press any key to exit.
     PAUSE >nul
     EXIT /B
 )
-GOTO CHECK_DIRECTORIES
+GOTO CHECK_DIRECTORIES_AESKEYS
 
-:CHECK_DIRECTORIES
-CALL :ProcessFile "%citra_file%" "Citra"
-CALL :ProcessFile "%lime3ds_file%" "Lime3DS"
-CALL :ProcessFile "%mandarine_file%" "Mandarine"
+:USE_CUSTOM_PATH_SEEDDBBIN
+FOR /F "delims=" %%I IN ('powershell -noprofile "Add-Type -AssemblyName System.Windows.Forms; $f = New-Object Windows.Forms.OpenFileDialog; $f.InitialDirectory = [System.IO.Directory]::GetCurrentDirectory(); $f.Filter = 'Binary Files (*.bin)|*.bin|All Files (*.*)|*.*'; $f.ShowHelp = $true; $f.Multiselect = $false; [void]$f.ShowDialog(); $f.FileName"') DO SET "custom_file_path=%%I"
+IF NOT EXIST "%custom_file_path%" (
+    ECHO Custom file not found. :( Press any key to exit.
+    PAUSE >nul
+    EXIT /B
+)
 
-ECHO Success! Press any key to exit! :3
+COPY /Y "%custom_file_path%" "%seeddbbin%"
+IF %ERRORLEVEL% NEQ 0 (
+    ECHO File copy failed. :( Press any key to exit.
+    PAUSE >nul
+    EXIT /B
+)
+GOTO CHECK_DIRECTORIES_SEEDDB
+
+:CHOOSESEEDDBBINDOWNLOAD
+ECHO Choose a source for the SeedDB file:
+ECHO [1] IHaveAMac (recommended)
+ECHO [2] JimJam108
+CHOICE /N /C:12 /M "Your choice:"
+IF ERRORLEVEL 2 SET "seeddbbin_url=%seeddb_url_jimjam%"
+IF ERRORLEVEL 1 SET "seeddbbin_url=%seeddb_url_ihaveamac%"
+GOTO DOWNLOADSEEDDB
+
+:CHOOSEAESKEYSDOWNLOAD
+ECHO Choose a source for the SeedDB file:
+ECHO [1] Yetiuard
+ECHO [2] PasteBin
+Echo [3] JimJam108
+CHOICE /N /C:123 /M "Your choice:"
+IF ERRORLEVEL 3 SET "aeskeys_url=%aeskeys_url_jimjam%"
+IF ERRORLEVEL 2 SET "aeskeys_url=%aeskeys_url_pastebin%"
+IF ERRORLEVEL 1 SET "aeskeys_url=%aeskeys_url_yetiuard%"
+GOTO DOWNLOADAESKEYS
+
+:CHECK_DIRECTORIES_AESKEYS
+CALL :ProcessFile "%citra_aeskeys%" "%aeskeystxt%" "Citra"
+CALL :ProcessFile "%lime3ds_aeskeys%" "%aeskeystxt%" "Lime3DS"
+CALL :ProcessFile "%mandarine_aeskeys%" "%aeskeystxt%" "Mandarine"
+ECHO AES keys setup complete.
+GOTO SEEDDBCHECK
+
+:CHECK_DIRECTORIES_SEEDDB
+CALL :ProcessFile "%citra_seeddb%" "%seeddbbin%" "Citra"
+CALL :ProcessFile "%lime3ds_seeddb%" "%seeddbbin%" "Lime3DS"
+CALL :ProcessFile "%mandarine_seeddb%" "%seeddbbin%" "Mandarine"
+ECHO SeedDB setup complete. Press any key to exit!
 PAUSE >nul
 EXIT /B
 
 :ProcessFile
 SET "file_path=%~1"
-SET "dir_name=%~2"
+SET "source_file=%~2"
+SET "dir_name=%~3"
 SET "dir_path=%~dp1"
 IF EXIST "%file_path%" (
-    ECHO File %file_path% exists.
-    CHOICE /N /C:YN /M "Do you want to overwrite the file in %dir_name%? (Y/N)"
+    ECHO:
+    CHOICE /N /C:YN /M "Overwrite the file in %dir_name%? (Y/N)"
     IF ERRORLEVEL 2 GOTO SKIP_FILE
     IF ERRORLEVEL 1 GOTO OVERWRITE
-    GOTO END
 ) ELSE (
     ECHO File %file_path% does not exist.
-    CHOICE /N /C:CS /M "Do you want to: (C)reate it or (S)kip?"
+    CHOICE /N /C:CS /M "(C)reate it or (S)kip?"
     IF ERRORLEVEL 2 GOTO SKIP_FILE
     IF ERRORLEVEL 1 GOTO CREATE_AND_COPY
-    GOTO END
 )
 
 :OVERWRITE
@@ -78,15 +163,14 @@ IF %ERRORLEVEL% NEQ 0 (
 GOTO END
 
 :SKIP_FILE
-ECHO Skipping %file_path%. !
+ECHO Skipping
 GOTO END
 
 :CREATE_AND_COPY
 IF NOT EXIST "%dir_path%" (
     MKDIR "%dir_path%"
     IF %ERRORLEVEL% NEQ 0 (
-        GOTO OVERWRITE
-        ECHO success?
+        ECHO Failed to create directory. :( Press any key to exit.
         PAUSE >nul
         EXIT /B
     )
