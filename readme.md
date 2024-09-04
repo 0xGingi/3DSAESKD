@@ -19,6 +19,8 @@
 - linux support
 
 - Macos support
+
+- linux and macos use the same .sh script dumbass
 ## Usage
 
 If you have your own AES Keys and want to use those instead, you can simply choose it from the program.
